@@ -1,56 +1,31 @@
-# Welcome to your Expo app 👋
+# Vetanly mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo (SDK 57) app for Vetanly. Users sign in with a phone number and OTP, or with Google, against the API in `../server`.
 
-## Get started
+## Setup
 
-1. Install dependencies
+    bun install
+    cp .env.example .env    # then fill it in
 
-   ```bash
-   npm install
-   ```
+- `EXPO_PUBLIC_API_URL`: the server's `/api/v1` URL. On a phone, use your computer's LAN IP, not `localhost`.
+- `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`: must be the same value as the server's `GOOGLE_CLIENT_ID`. Leave it empty to hide the Google button.
+- `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`: an iOS OAuth client for the bundle ID `com.vetanly.app`.
 
-2. Start the app
+For Android, create an Android OAuth client in the same Google Cloud project, with package `com.vetanly.app` and the SHA-1 of your signing key (`cd android && ./gradlew signingReport` after a prebuild, or the SHA-1 shown by EAS).
 
-   ```bash
-   npx expo start
-   ```
+## Run
 
-In the output, you'll find options to open the app in a
+Google sign-in uses native code, so it needs a development build. Phone sign-in also works in Expo Go.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+    bunx expo run:android    # or run:ios, or: bunx eas-cli build --profile development
+    bunx expo start          # Expo Go: phone OTP only
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The dev server prints OTPs to the server console until an SMS provider is configured.
 
-## Get a fresh project
+## Auth flow
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `src/app/sign-in.tsx`: enter a phone number to get an OTP (`POST /auth/send-otp`), or tap Continue with Google. The Google ID token goes to `POST /auth/google`.
+- `src/app/verify-otp.tsx`: enter the OTP (`POST /auth/verify-otp`). The code submits by itself once all 6 digits are in, including when it's autofilled from SMS.
+- `src/lib/session.tsx`: keeps the tokens and user in SecureStore (localStorage on web). `Stack.Protected` in `src/app/_layout.tsx` sends signed-out users to sign-in.
+- `src/lib/api.ts`: adds the access token to requests. On a 401 it refreshes the token once (`POST /auth/refresh`); if the refresh token is rejected, the user is signed out.
+- Signing out calls `POST /auth/logout` and clears the session on the device, even if the server can't be reached.

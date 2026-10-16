@@ -1,28 +1,60 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
 
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
+// Page is a soft tinted grey so white cards lift off it; dark mode uses a deep violet-black for the same layering.
+// Each tone has a strong value for icons and text and a soft value for the chip or banner behind it.
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#15131F',
+    textSecondary: '#6E6A82',
+    background: '#F5F4FA',
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#EFEDF7',
+    border: '#E6E3F0',
+    primary: '#5938E8',
+    primarySoft: '#EEEAFE',
+    onPrimary: '#FFFFFF',
+    success: '#11935A',
+    successSoft: '#E3F6EC',
+    warning: '#C76A00',
+    warningSoft: '#FDF1DE',
+    danger: '#DC3545',
+    dangerSoft: '#FDE8EA',
+    info: '#0B7FC4',
+    infoSoft: '#E1F2FC',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#F3F2FA',
+    textSecondary: '#A29EB8',
+    background: '#0D0C14',
+    backgroundElement: '#17161F',
+    backgroundSelected: '#211F2C',
+    border: '#2A2838',
+    primary: '#8D78FF',
+    primarySoft: '#251F47',
+    onPrimary: '#FFFFFF',
+    success: '#3DD68C',
+    successSoft: '#11291D',
+    warning: '#F5A524',
+    warningSoft: '#30230D',
+    danger: '#FF6B72',
+    dangerSoft: '#371518',
+    info: '#4CC2FF',
+    infoSoft: '#0E2636',
   },
 } as const;
+
+export type Tone = 'primary' | 'success' | 'warning' | 'danger' | 'info';
+
+/** The brand gradient behind headers. Needs the New Architecture (the default); elsewhere the primary color shows. */
+export const BrandGradient = 'linear-gradient(140deg, #7B5CFF 0%, #5938E8 48%, #3B1FB8 100%)';
+
+/** Raised-card shadow; dark mode relies on the surface color and border instead. */
+export const CardShadow = '0px 1px 2px rgba(21, 19, 31, 0.04), 0px 6px 20px rgba(21, 19, 31, 0.06)';
+
+export const Radius = { sm: 10, md: 14, lg: 20, xl: 28 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
@@ -61,5 +93,3 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
